@@ -394,7 +394,7 @@ namespace InformationRetrieval.Document
                 }
                 else
                 {
-                    termId = term.GetTerm().GetName().GetHashCode();
+                    termId = System.Math.Abs(term.GetTerm().GetName().GetHashCode());
                     nGramDictionary.AddTerm(term.GetTerm().GetName(), termId);
                 }
 
@@ -584,7 +584,7 @@ namespace InformationRetrieval.Document
                     }
                     else
                     {
-                        termId = word.GetHashCode();
+                        termId = System.Math.Abs(word.GetHashCode());
                         dictionary.AddTerm(word, termId);
                     }
 
@@ -693,7 +693,7 @@ namespace InformationRetrieval.Document
                     }
                     else
                     {
-                        termId = termOccurrence.GetTerm().GetName().GetHashCode();
+                        termId = System.Math.Abs(termOccurrence.GetTerm().GetName().GetHashCode());
                         dictionary.AddTerm(termOccurrence.GetTerm().GetName(), termId);
                     }
 

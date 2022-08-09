@@ -26,6 +26,7 @@ namespace InformationRetrieval.Index
         {
             int i, termId, prevDocId;
             TermOccurrence term, previousTerm;
+            positionalIndex = new SortedDictionary<int, PositionalPostingList>();
             if (terms.Count > 0)
             {
                 term = terms[0];
