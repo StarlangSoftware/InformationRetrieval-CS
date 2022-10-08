@@ -66,6 +66,7 @@ namespace InformationRetrieval.Document
                 if (parameter.ConstructPositionalIndex())
                 {
                     _positionalIndex = new PositionalIndex(directory);
+                    _positionalIndex.SetDocumentSizes(documents);
                 }
 
                 if (parameter.ConstructPhraseIndex())

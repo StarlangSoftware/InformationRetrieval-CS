@@ -67,5 +67,10 @@ namespace InformationRetrieval.Document
         {
             return _size;
         }
+
+        public void SetSize(int size)
+        {
+            this._size = size;
+        }
     }
 }

@@ -87,7 +87,7 @@ namespace Test
         public void TestPositionalIndexRankedQuery()
         {
             var parameter = new Parameter();
-            parameter.SetNGramIndex(true);
+            parameter.SetLoadIndexesFromFile(true);
             var collection = new Collection("../../../testCollection2", parameter);
             var query = new Query("Caesar");
             var result = collection.SearchCollection(query, RetrievalType.RANKED, TermWeighting.NATURAL, DocumentWeighting.NO_IDF);

@@ -172,11 +172,26 @@ namespace InformationRetrieval.Index
             int[] df;
             df = new int[positionalIndex.Count];
             var i = 0;
-            foreach (int key in positionalIndex.Keys){
+            foreach (var key in positionalIndex.Keys){
                 df[i] = positionalIndex[key].Size();
                 i++;
             }
             return df;
+        }
+        
+        public void SetDocumentSizes(List<Document.Document> documents){
+            var sizes = new int[documents.Count];
+            foreach (var key in positionalIndex.Keys){
+                var positionalPostingList = positionalIndex[key];
+                for (var j = 0; j < positionalPostingList.Size(); j++) {
+                    var positionalPosting = positionalPostingList.Get(j);
+                    var docId = positionalPosting.GetDocId();
+                    sizes[docId] += positionalPosting.Size();
+                }
+            }
+            foreach (var document in documents){
+                document.SetSize(sizes[document.GetDocId()]);
+            }
         }
 
         public QueryResult RankedSearch(Query.Query query, TermDictionary dictionary, List<Document.Document> documents,
