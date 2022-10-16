@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 namespace InformationRetrieval.Query
 {
-    public class QueryResultItemComparator : IComparer<QueryResultItem>
+    public class QueryResultItemComparator : Comparer<QueryResultItem>
     {
-        public int Compare(QueryResultItem resultA, QueryResultItem resultB)
+        public override int Compare(QueryResultItem resultA, QueryResultItem resultB)
         {
             if (resultA.GetScore() > resultB.GetScore())
             {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DataStructure.Heap;
 
 namespace InformationRetrieval.Query
 {
@@ -26,10 +27,17 @@ namespace InformationRetrieval.Query
             return _items;
         }
 
-        public void Sort()
+        public void GetBest(int K)
         {
             var comparator = new QueryResultItemComparator();
-            _items.Sort(comparator);
+            var minHeap = new MinHeap<QueryResultItem>(2 * K, comparator);
+            foreach (QueryResultItem queryResultItem in _items){
+                minHeap.Insert(queryResultItem);
+            }
+            _items.Clear();
+            for (var i = 0; i < K && !minHeap.IsEmpty(); i++){
+                _items.Add(minHeap.Delete());
+            }
         }
     }
 }

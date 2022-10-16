@@ -770,21 +770,20 @@ namespace InformationRetrieval.Document
             _triGramIndex = new NGramIndex(_triGramDictionary, terms, comparator);
         }
 
-        public QueryResult SearchCollection(Query.Query query, RetrievalType retrievalType, TermWeighting termWeighting,
-            DocumentWeighting documentWeighting)
+        public QueryResult SearchCollection(Query.Query query, SearchParameter searchParameter)
         {
             switch (indexType)
             {
                 case IndexType.INCIDENCE_MATRIX:
                     return _incidenceMatrix.Search(query, _dictionary);
                 case IndexType.INVERTED_INDEX:
-                    switch (retrievalType)
+                    switch (searchParameter.GetRetrievalType())
                     {
                         case RetrievalType.BOOLEAN: return _invertedIndex.Search(query, _dictionary);
                         case RetrievalType.POSITIONAL: return _positionalIndex.PositionalSearch(query, _dictionary);
                         case RetrievalType.RANKED:
-                            return _positionalIndex.RankedSearch(query, _dictionary, documents, termWeighting,
-                                documentWeighting);
+                            return _positionalIndex.RankedSearch(query, _dictionary, documents, searchParameter.GetTermWeighting(),
+                                searchParameter.GetDocumentWeighting(), searchParameter.GetDocumentsRetrieved());
                     }
 
                     break;

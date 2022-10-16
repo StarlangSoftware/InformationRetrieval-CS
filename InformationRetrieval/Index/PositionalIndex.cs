@@ -195,11 +195,11 @@ namespace InformationRetrieval.Index
         }
 
         public QueryResult RankedSearch(Query.Query query, TermDictionary dictionary, List<Document.Document> documents,
-            TermWeighting termWeighting, DocumentWeighting documentWeighting)
+            TermWeighting termWeighting, DocumentWeighting documentWeighting, int documentsReturned)
         {
             int i, j, term, docID, n = documents.Count, tf, df;
             var result = new QueryResult();
-            var scores = new double[n];
+            var scores = new Dictionary<int, double>();
             PositionalPostingList positionalPostingList;
             for (i = 0; i < query.Size(); i++)
             {
@@ -215,22 +215,21 @@ namespace InformationRetrieval.Index
                         df = positionalIndex[term].Size();
                         if (tf > 0 && df > 0)
                         {
-                            scores[docID] += VectorSpaceModel.Weighting(tf, df, n, termWeighting, documentWeighting);
+                            var score = VectorSpaceModel.Weighting(tf, df, n, termWeighting, documentWeighting);
+                            if (scores.ContainsKey(docID)){
+                                scores[docID] = scores[docID] + score;
+                            } else {
+                                scores[docID] = score;
+                            }
                         }
                     }
                 }
             }
 
-            for (i = 0; i < n; i++)
-            {
-                scores[i] /= documents[i].GetSize();
-                if (scores[i] > 0.0)
-                {
-                    result.Add(i, scores[i]);
-                }
+            foreach (var docId in scores.Keys){
+                result.Add(docId, scores[docId] / documents[docId].GetSize());
             }
-
-            result.Sort();
+            result.GetBest(documentsReturned);
             return result;
         }
     }
