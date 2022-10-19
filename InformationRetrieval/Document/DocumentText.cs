@@ -7,6 +7,10 @@ namespace InformationRetrieval.Document
 {
     public class DocumentText : Corpus.Corpus
     {
+        public DocumentText()
+        {
+            
+        }
         public DocumentText(string fileName) : base(fileName)
         {
         }

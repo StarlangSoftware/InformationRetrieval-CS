@@ -1,5 +1,4 @@
 using InformationRetrieval.Document;
-using InformationRetrieval.Index;
 using InformationRetrieval.Query;
 using NUnit.Framework;
 
@@ -137,5 +136,18 @@ namespace Test
             Assert.AreEqual(15, collection.VocabularySize());
         }
         
+        [Test]
+        public void TestCategoricalCollection()
+        {
+            var parameter = new Parameter();
+            parameter.SetDocumentType(DocumentType.CATEGORICAL);
+            parameter.SetLoadIndexesFromFile(true);
+            parameter.SetPhraseIndex(false);
+            parameter.SetNGramIndex(false);
+            var collection = new Collection("../../../testCollection3", parameter);
+            Assert.AreEqual(1000, collection.Size());
+            Assert.AreEqual(2283, collection.VocabularySize());
+        }
+
     }
 }

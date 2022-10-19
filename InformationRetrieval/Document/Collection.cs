@@ -50,7 +50,7 @@ namespace InformationRetrieval.Document
                     var file = listOfFiles[i];
                     if (file.EndsWith(".txt"))
                     {
-                        var document = new Document(file, file, j);
+                        var document = new Document(parameter.GetDocumentType(), file, file, j);
                         documents.Add(document);
                         j++;
                     }
@@ -61,6 +61,9 @@ namespace InformationRetrieval.Document
 
             if (parameter.LoadIndexesFromFile())
             {
+                if (parameter.GetDocumentType() == DocumentType.CATEGORICAL){
+                    LoadCategories();
+                }
                 _dictionary = new TermDictionary(comparator, directory);
                 _invertedIndex = new InvertedIndex(directory);
                 if (parameter.ConstructPositionalIndex())
@@ -146,6 +149,31 @@ namespace InformationRetrieval.Document
                     _triGramIndex.Save(name + "-triGram");
                 }
             }
+            if (parameter.GetDocumentType() == DocumentType.CATEGORICAL){
+                SaveCategories();
+            }
+        }
+
+        private void SaveCategories()
+        {
+            var printWriter = new StreamWriter(name + "-categories.txt");
+            foreach (var document in documents){
+                printWriter.Write(document.GetDocId() + "\t" + document.GetCategoryHierarchy().ToString() + "\n");
+            }
+            printWriter.Close();
+        }
+
+        private void LoadCategories()
+        {
+            var streamReader = new StreamReader(name + "-categories.txt");
+            var line = streamReader.ReadLine();
+            while (line != null){
+                var items = line.Split("\t");
+                var docId = int.Parse(items[0]);
+                documents[docId].SetCategoryHierarchy(items[1]);
+                line = streamReader.ReadLine();
+            }
+            streamReader.Close();
         }
 
         private void ConstructDictionaryInDisk()
@@ -200,7 +228,7 @@ namespace InformationRetrieval.Document
 
         private void ConstructIndexesInMemory()
         {
-            List<TermOccurrence> terms = ConstructTerms(TermType.TOKEN);
+            var terms = ConstructTerms(TermType.TOKEN);
             _dictionary = new TermDictionary(comparator, terms);
             switch (indexType)
             {
@@ -358,7 +386,7 @@ namespace InformationRetrieval.Document
                                   currentWords[indexesToCombine[0]] + "\n");
                 foreach (var i in indexesToCombine)
                 {
-                    string line = files[i].ReadLine();
+                    var line = files[i].ReadLine();
                     if (line != null)
                     {
                         currentIdList[i] = int.Parse(line.Substring(0, line.IndexOf(" ", StringComparison.Ordinal)));

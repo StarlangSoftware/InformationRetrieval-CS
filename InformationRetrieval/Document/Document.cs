@@ -1,7 +1,4 @@
 using Corpus;
-using Dictionary.Dictionary;
-using MorphologicalAnalysis;
-using MorphologicalDisambiguation;
 
 namespace InformationRetrieval.Document
 {
@@ -11,43 +8,45 @@ namespace InformationRetrieval.Document
         private string _fileName;
         private int _docId;
         private int _size = 0;
+        private DocumentType _documentType;
+        private CategoryHierarchy _categoryHierarchy;
 
-        public Document(string absoluteFileName, string fileName, int docId)
+        public Document(DocumentType documentType, string absoluteFileName, string fileName, int docId)
         {
             _docId = docId;
             _absoluteFileName = absoluteFileName;
             _fileName = fileName;
+            _documentType = documentType;
         }
 
         public DocumentText LoadDocument()
         {
             DocumentText documentText;
-            documentText = new DocumentText(_absoluteFileName, new TurkishSplitter());
-            _size = documentText.NumberOfWords();
+            switch (_documentType)
+            {
+                case DocumentType.NORMAL:
+                    default:
+                    documentText = new DocumentText(_absoluteFileName, new TurkishSplitter());
+                    _size = documentText.NumberOfWords();
+                    break;
+                case DocumentType.CATEGORICAL:
+                    var corpus = new Corpus.Corpus(_absoluteFileName);
+                    if (corpus.SentenceCount() >= 2){
+                        _categoryHierarchy = new CategoryHierarchy(corpus.GetSentence(0).ToString());
+                        documentText = new DocumentText();
+                        var sentences = new TurkishSplitter().Split(corpus.GetSentence(1).ToString());
+                        foreach (var sentence in sentences){
+                            documentText.AddSentence(sentence);
+                        }
+                        _size = documentText.NumberOfWords();
+                    } else {
+                        return null;
+                    }
+                    break;
+            }
             return documentText;
         }
-
-        public Corpus.Corpus NormalizeDocument(MorphologicalDisambiguator disambiguator, FsmMorphologicalAnalyzer fsm)
-        {
-            var corpus = new Corpus.Corpus(_absoluteFileName);
-            for (var i = 0; i < corpus.SentenceCount(); i++)
-            {
-                var sentence = corpus.GetSentence(i);
-                var parses = fsm.RobustMorphologicalAnalysis(sentence);
-                var correctParses = disambiguator.Disambiguate(parses);
-                var newSentence = new Sentence();
-                foreach (var fsmParse in correctParses)
-                {
-                    newSentence.AddWord(new Word(fsmParse.GetWord().GetName()));
-                }
-
-                corpus.AddSentence(newSentence);
-            }
-
-            _size = corpus.NumberOfWords();
-            return corpus;
-        }
-
+        
         public int GetDocId()
         {
             return _docId;
@@ -70,7 +69,16 @@ namespace InformationRetrieval.Document
 
         public void SetSize(int size)
         {
-            this._size = size;
+            _size = size;
         }
+        
+        public void SetCategoryHierarchy(string categoryHierarchy){
+            _categoryHierarchy = new CategoryHierarchy(categoryHierarchy);
+        }
+
+        public CategoryHierarchy GetCategoryHierarchy(){
+            return _categoryHierarchy;
+        }
+
     }
 }

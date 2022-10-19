@@ -21,6 +21,7 @@ namespace InformationRetrieval.Document
         private bool _limitNumberOfDocumentsLoaded;
         private int _documentLimit = 1000;
         private int _wordLimit = 10000;
+        private DocumentType _documentType = DocumentType.NORMAL;
 
         public IndexType GetIndexType()
         {
@@ -164,6 +165,16 @@ namespace InformationRetrieval.Document
         public void SetWordLimit(int wordLimit)
         {
             _wordLimit = wordLimit;
+        }
+
+        public DocumentType GetDocumentType()
+        {
+            return _documentType;
+        }
+
+        public void SetDocumentType(DocumentType documentType)
+        {
+            _documentType = documentType;
         }
     }
 }
