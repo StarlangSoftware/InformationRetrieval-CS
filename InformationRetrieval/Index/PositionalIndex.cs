@@ -194,6 +194,16 @@ namespace InformationRetrieval.Index
             }
         }
 
+        public void SetCategoryCounts(List<Document.Document> documents){
+            foreach (var termId in positionalIndex.Keys){
+                var positionalPostingList = positionalIndex[termId];
+                for (var j = 0; j < positionalPostingList.Size(); j++) {
+                    var positionalPosting = positionalPostingList.Get(j);
+                    var docId = positionalPosting.GetDocId();
+                    documents[docId].GetCategoryNode().AddCounts(termId, positionalPosting.Size());
+                }
+            }
+        }
         public QueryResult RankedSearch(Query.Query query, TermDictionary dictionary, List<Document.Document> documents,
             TermWeighting termWeighting, DocumentWeighting documentWeighting, int documentsReturned)
         {

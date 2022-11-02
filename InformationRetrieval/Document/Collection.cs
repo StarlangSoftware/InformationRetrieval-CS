@@ -25,6 +25,7 @@ namespace InformationRetrieval.Document
         private IComparer<Word> comparator;
         private string name;
         private Parameter parameter;
+        private CategoryTree _categoryTree = null;
 
         public Collection(string directory, Parameter parameter)
         {
@@ -108,6 +109,11 @@ namespace InformationRetrieval.Document
                     }
                 }
             }
+
+            if (parameter.GetDocumentType() == DocumentType.CATEGORICAL)
+            {
+                _positionalIndex.SetCategoryCounts(documents);
+            }
         }
 
         public int Size()
@@ -158,19 +164,20 @@ namespace InformationRetrieval.Document
         {
             var printWriter = new StreamWriter(name + "-categories.txt");
             foreach (var document in documents){
-                printWriter.Write(document.GetDocId() + "\t" + document.GetCategoryHierarchy().ToString() + "\n");
+                printWriter.Write(document.GetDocId() + "\t" + document.GetCategory().ToString() + "\n");
             }
             printWriter.Close();
         }
 
         private void LoadCategories()
         {
+            _categoryTree = new CategoryTree(name);
             var streamReader = new StreamReader(name + "-categories.txt");
             var line = streamReader.ReadLine();
             while (line != null){
                 var items = line.Split("\t");
                 var docId = int.Parse(items[0]);
-                documents[docId].SetCategoryHierarchy(items[1]);
+                documents[docId].SetCategory(_categoryTree, items[1]);
                 line = streamReader.ReadLine();
             }
             streamReader.Close();
@@ -258,6 +265,12 @@ namespace InformationRetrieval.Document
                         ConstructNGramIndex();
                     }
 
+                    if (parameter.GetDocumentType() == DocumentType.CATEGORICAL){
+                        _categoryTree = new CategoryTree(name);
+                        foreach (var document in documents){
+                            document.LoadCategory(_categoryTree);
+                        }
+                    }
                     break;
             }
         }
@@ -796,6 +809,10 @@ namespace InformationRetrieval.Document
             terms = _dictionary.ConstructTermsFromDictionary(3);
             _triGramDictionary = new TermDictionary(comparator, terms);
             _triGramIndex = new NGramIndex(_triGramDictionary, terms, comparator);
+        }
+        
+        public string TopNString(int n){
+            return _categoryTree.TopNString(_dictionary, n);
         }
 
         public QueryResult SearchCollection(Query.Query query, SearchParameter searchParameter)

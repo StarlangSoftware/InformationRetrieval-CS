@@ -1,4 +1,5 @@
 using Corpus;
+using InformationRetrieval.Index;
 
 namespace InformationRetrieval.Document
 {
@@ -7,9 +8,9 @@ namespace InformationRetrieval.Document
         private string _absoluteFileName;
         private string _fileName;
         private int _docId;
-        private int _size = 0;
+        private int _size;
         private DocumentType _documentType;
-        private CategoryHierarchy _categoryHierarchy;
+        private CategoryNode _category;
 
         public Document(DocumentType documentType, string absoluteFileName, string fileName, int docId)
         {
@@ -32,7 +33,6 @@ namespace InformationRetrieval.Document
                 case DocumentType.CATEGORICAL:
                     var corpus = new Corpus.Corpus(_absoluteFileName);
                     if (corpus.SentenceCount() >= 2){
-                        _categoryHierarchy = new CategoryHierarchy(corpus.GetSentence(0).ToString());
                         documentText = new DocumentText();
                         var sentences = new TurkishSplitter().Split(corpus.GetSentence(1).ToString());
                         foreach (var sentence in sentences){
@@ -45,6 +45,18 @@ namespace InformationRetrieval.Document
                     break;
             }
             return documentText;
+        }
+
+        public void LoadCategory(CategoryTree categoryTree)
+        {
+            if (_documentType == DocumentType.CATEGORICAL)
+            {
+                var corpus = new Corpus.Corpus(_absoluteFileName);
+                if (corpus.SentenceCount() >= 2)
+                {
+                    _category = categoryTree.AddCategoryHierarchy(corpus.GetSentence(0).ToString());
+                }
+            }
         }
         
         public int GetDocId()
@@ -72,12 +84,17 @@ namespace InformationRetrieval.Document
             _size = size;
         }
         
-        public void SetCategoryHierarchy(string categoryHierarchy){
-            _categoryHierarchy = new CategoryHierarchy(categoryHierarchy);
+        public void SetCategory(CategoryTree categoryTree, string category){
+            _category = categoryTree.AddCategoryHierarchy(category);
         }
 
-        public CategoryHierarchy GetCategoryHierarchy(){
-            return _categoryHierarchy;
+        public string GetCategory(){
+            return _category.ToString();
+        }
+
+        public CategoryNode GetCategoryNode()
+        {
+            return _category;
         }
 
     }
