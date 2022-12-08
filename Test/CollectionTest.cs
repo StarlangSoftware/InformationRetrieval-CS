@@ -11,7 +11,7 @@ namespace Test
         {
             var parameter = new Parameter();
             parameter.SetIndexType(IndexType.INCIDENCE_MATRIX);
-            var collection = new Collection("../../../testCollection2", parameter);
+            var collection = new MemoryCollection("../../../testCollection2", parameter);
             Assert.AreEqual(2, collection.Size());
             Assert.AreEqual(26, collection.VocabularySize());
         }
@@ -21,7 +21,7 @@ namespace Test
         {
             var parameter = new Parameter();
             parameter.SetIndexType(IndexType.INCIDENCE_MATRIX);
-            var collection = new Collection("../../../testCollection2", parameter);
+            var collection = new MemoryCollection("../../../testCollection2", parameter);
             var query = new Query("Brutus");
             var searchParameter = new SearchParameter();
             searchParameter.SetRetrievalType(RetrievalType.BOOLEAN);
@@ -46,7 +46,7 @@ namespace Test
         {
             var parameter = new Parameter();
             parameter.SetNGramIndex(true);
-            var collection = new Collection("../../../testCollection2", parameter);
+            var collection = new MemoryCollection("../../../testCollection2", parameter);
             var query = new Query("Brutus");
             var searchParameter = new SearchParameter();
             searchParameter.SetRetrievalType(RetrievalType.BOOLEAN);
@@ -71,7 +71,7 @@ namespace Test
         {
             var parameter = new Parameter();
             parameter.SetNGramIndex(true);
-            var collection = new Collection("../../../testCollection2", parameter);
+            var collection = new MemoryCollection("../../../testCollection2", parameter);
             var query = new Query("Julius Caesar");
             var searchParameter = new SearchParameter();
             searchParameter.SetRetrievalType(RetrievalType.POSITIONAL);
@@ -93,7 +93,7 @@ namespace Test
         {
             var parameter = new Parameter();
             parameter.SetLoadIndexesFromFile(true);
-            var collection = new Collection("../../../testCollection2", parameter);
+            var collection = new MemoryCollection("../../../testCollection2", parameter);
             var query = new Query("Caesar");
             var searchParameter = new SearchParameter();
             searchParameter.SetRetrievalType(RetrievalType.RANKED);
@@ -119,7 +119,7 @@ namespace Test
             var parameter = new Parameter();
             parameter.SetNGramIndex(true);
             parameter.SetLoadIndexesFromFile(true);
-            var collection = new Collection("../../../testCollection2", parameter);
+            var collection = new MemoryCollection("../../../testCollection2", parameter);
             Assert.AreEqual(2, collection.Size());
             Assert.AreEqual(26, collection.VocabularySize());
         }
@@ -131,7 +131,7 @@ namespace Test
             parameter.SetNGramIndex(false);
             parameter.SetLimitNumberOfDocumentsLoaded(true);
             parameter.SetDocumentLimit(1);
-            var collection = new Collection("../../../testCollection2", parameter);
+            var collection = new MemoryCollection("../../../testCollection2", parameter);
             Assert.AreEqual(1, collection.Size());
             Assert.AreEqual(15, collection.VocabularySize());
         }
@@ -144,9 +144,46 @@ namespace Test
             parameter.SetLoadIndexesFromFile(true);
             parameter.SetPhraseIndex(false);
             parameter.SetNGramIndex(false);
-            var collection = new Collection("../../../testCollection3", parameter);
+            var collection = new MemoryCollection("../../../testCollection3", parameter);
             Assert.AreEqual(1000, collection.Size());
             Assert.AreEqual(2283, collection.VocabularySize());
+        }
+        
+        [Test] 
+        public void TestAttributeQuery() {
+            var parameter = new Parameter();
+            parameter.SetDocumentType(DocumentType.CATEGORICAL);
+            parameter.SetLoadIndexesFromFile(true);
+            var memoryCollection = new MemoryCollection("../../../testCollection3", parameter);
+            var searchParameter = new SearchParameter();
+            searchParameter.SetRetrievalType(RetrievalType.ATTRIBUTE);
+            var query = new Query("Çift Yönlü");
+            var result = memoryCollection.SearchCollection(query, searchParameter);
+            Assert.AreEqual(10, result.GetItems().Count);
+            query = new Query("Müzikli");
+            result = memoryCollection.SearchCollection(query, searchParameter);
+            Assert.AreEqual(4, result.GetItems().Count);
+            query = new Query("Çift Yönlü Alüminyum Bebek Arabası");
+            result = memoryCollection.SearchCollection(query, searchParameter);
+            Assert.AreEqual(2, result.GetItems().Count);
+        }
+
+        [Test]
+        public void TestCategoricalQuery() {
+            var parameter = new Parameter();
+            parameter.SetDocumentType(DocumentType.CATEGORICAL);
+            parameter.SetLoadIndexesFromFile(true);
+            var memoryCollection = new MemoryCollection("../../../testCollection3", parameter);
+            var searchParameter = new SearchParameter();
+            searchParameter.SetFocusType(FocusType.CATEGORY);
+            searchParameter.SetRetrievalType(RetrievalType.BOOLEAN);
+            var query = new Query("Çift Yönlü Bebek Arabası");
+            var result = memoryCollection.SearchCollection(query, searchParameter);
+            Assert.AreEqual(10, result.GetItems().Count);
+            searchParameter.SetRetrievalType(RetrievalType.BOOLEAN);
+            query = new Query("Terlik");
+            result = memoryCollection.SearchCollection(query, searchParameter);
+            Assert.AreEqual(5, result.GetItems().Count);
         }
 
     }

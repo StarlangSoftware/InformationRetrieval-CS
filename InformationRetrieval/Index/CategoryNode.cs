@@ -1,19 +1,18 @@
 using System.Collections.Generic;
 using DataStructure;
-using Dictionary.Dictionary;
 
 namespace InformationRetrieval.Index
 {
     public class CategoryNode
     {
-        private string _name;
         private List<CategoryNode> _children = new List<CategoryNode>();
         private CategoryNode _parent;
         private CounterHashMap<int> _counts = new CounterHashMap<int>();
+        private List<string> _categoryWords;
 
         public CategoryNode(string name, CategoryNode parent)
         {
-            _name = name;
+            _categoryWords = new List<string>(name.Split(" "));
             _parent = parent;
             if (parent != null)
             {
@@ -28,7 +27,11 @@ namespace InformationRetrieval.Index
 
         public string GetName()
         {
-            return _name;
+            var result = _categoryWords[0];
+            for (var i = 1; i < _categoryWords.Count; i++){
+                result += " " + _categoryWords[i];
+            }
+            return result;
         }
 
         public CategoryNode GetChild(string childName)
@@ -53,6 +56,16 @@ namespace InformationRetrieval.Index
                 current = current._parent;
             }
         }
+        
+        public bool IsDescendant(CategoryNode ancestor){
+            if (Equals(ancestor)){
+                return true;
+            }
+            if (_parent == null){
+                return false;
+            }
+            return _parent.IsDescendant(ancestor);
+        }
 
         public List<CategoryNode> GetChildren()
         {
@@ -70,17 +83,6 @@ namespace InformationRetrieval.Index
                 return _counts.TopN(_counts.Keys.Count);
             }
         }
-        
-        public string TopNString(TermDictionary dictionary, int n){
-            var topN = TopN(n);
-            var result = ToString();
-            foreach (var item in topN){
-                if (!Word.IsPunctuation(dictionary.GetWord(item.Key).GetName())){
-                    result += "\t" + dictionary.GetWord(item.Key).GetName() + " (" + item.Value + ")";
-                }
-            }
-            return result;
-        }
 
         public string ToString()
         {
@@ -88,15 +90,57 @@ namespace InformationRetrieval.Index
             {
                 if (_parent._parent != null)
                 {
-                    return _parent.ToString() + "%" + _name;
+                    return _parent.ToString() + "%" + GetName();
                 }
                 else
                 {
-                    return _name;
+                    return GetName();
                 }
             }
 
             return "";
         }
+        
+        public void SetRepresentativeCount(int representativeCount){
+            if (representativeCount <= _counts.Keys.Count){
+                var topList = _counts.TopN(representativeCount);
+                _counts = new CounterHashMap<int>();
+                foreach (var entry in topList){
+                    _counts.PutNTimes(entry.Key, entry.Value);
+                }
+            }
+        }
+
+        public void GetCategoriesWithKeyword(Query.Query query, List<CategoryNode> result){
+            double categoryScore = 0;
+            for (var i = 0; i < query.Size(); i++){
+                if (_categoryWords.Contains(query.GetTerm(i).GetName())){
+                    categoryScore++;
+                }
+            }
+            if (categoryScore > 0){
+                result.Add(this);
+            }
+            foreach (var child in _children){
+                child.GetCategoriesWithKeyword(query, result);
+            }
+        }
+
+        public void GetCategoriesWithCosine(Query.Query query, TermDictionary dictionary, List<CategoryNode> result){
+            double categoryScore = 0;
+            for (var i = 0; i < query.Size(); i++){
+                var term = (Term) dictionary.GetWord(query.GetTerm(i).GetName());
+                if (term != null){
+                    categoryScore += _counts.Count(term.GetTermId());
+                }
+            }
+            if (categoryScore > 0){
+                result.Add(this);
+            }
+            foreach (var child in _children){
+                child.GetCategoriesWithCosine(query, dictionary, result);
+            }
+        }
+
     }
 }

@@ -1,4 +1,6 @@
+
 using System.Collections.Generic;
+using InformationRetrieval.Query;
 
 namespace InformationRetrieval.Index
 {
@@ -28,27 +30,24 @@ namespace InformationRetrieval.Index
 
             return current;
         }
-
-        public string TopNString(TermDictionary dictionary, int n)
-        {
-            var queue = new Queue<CategoryNode>();
-            queue.Enqueue(_root);
-            var result = "";
-            while (queue.Count > 0)
-            {
-                var node = queue.Dequeue();
-                if (node != _root)
-                {
-                    result += node.TopNString(dictionary, n) + "\n";
-                }
-
-                foreach (var child in node.GetChildren())
-                {
-                    queue.Enqueue(child);
-                }
+        
+        public List<CategoryNode> GetCategories(Query.Query query, TermDictionary dictionary, CategoryDeterminationType categoryDeterminationType){
+            var result = new List<CategoryNode>();
+            switch (categoryDeterminationType){
+                default:
+                case CategoryDeterminationType.KEYWORD:
+                    _root.GetCategoriesWithKeyword(query, result);
+                    break;
+                case CategoryDeterminationType.COSINE:
+                    _root.GetCategoriesWithCosine(query, dictionary, result);
+                    break;
             }
-
             return result;
         }
+
+        public void SetRepresentativeCount(int representativeCount) {
+            _root.SetRepresentativeCount(representativeCount);
+        }
+
     }
 }

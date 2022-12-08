@@ -16,12 +16,11 @@ namespace InformationRetrieval.Document
         private bool _phraseIndex = true;
         private bool _positionalIndex = true;
         private bool _constructNGramIndex = true;
-        private bool _constructIndexInDisk;
-        private bool _constructDictionaryInDisk;
         private bool _limitNumberOfDocumentsLoaded;
         private int _documentLimit = 1000;
         private int _wordLimit = 10000;
         private DocumentType _documentType = DocumentType.NORMAL;
+        private int _representativeCount = 10;
 
         public IndexType GetIndexType()
         {
@@ -68,11 +67,6 @@ namespace InformationRetrieval.Document
             return _constructNGramIndex;
         }
 
-        public bool ConstructIndexInDisk()
-        {
-            return _constructIndexInDisk;
-        }
-
         public bool LimitNumberOfDocumentsLoaded()
         {
             return _limitNumberOfDocumentsLoaded;
@@ -83,14 +77,14 @@ namespace InformationRetrieval.Document
             return _documentLimit;
         }
 
-        public bool ConstructDictionaryInDisk()
-        {
-            return _constructDictionaryInDisk;
-        }
-
         public int GetWordLimit()
         {
             return _wordLimit;
+        }
+
+        public int GetRepresentativeCount()
+        {
+            return _representativeCount;
         }
 
         public void SetIndexType(IndexType indexType)
@@ -138,11 +132,6 @@ namespace InformationRetrieval.Document
             _constructNGramIndex = nGramIndex;
         }
 
-        public void SetConstructIndexInDisk(bool constructIndexInDisk)
-        {
-            _constructIndexInDisk = constructIndexInDisk;
-        }
-
         public void SetLimitNumberOfDocumentsLoaded(bool limitNumberOfDocumentsLoaded)
         {
             _limitNumberOfDocumentsLoaded = limitNumberOfDocumentsLoaded;
@@ -153,18 +142,14 @@ namespace InformationRetrieval.Document
             _documentLimit = documentLimit;
         }
 
-        public void SetConstructDictionaryInDisk(bool constructDictionaryInDisk)
-        {
-            _constructDictionaryInDisk = constructDictionaryInDisk;
-            if (constructDictionaryInDisk)
-            {
-                _constructIndexInDisk = true;
-            }
-        }
-
         public void SetWordLimit(int wordLimit)
         {
             _wordLimit = wordLimit;
+        }
+
+        public void SetRepresentativeCount(int representativeCount)
+        {
+            _representativeCount = representativeCount;
         }
 
         public DocumentType GetDocumentType()

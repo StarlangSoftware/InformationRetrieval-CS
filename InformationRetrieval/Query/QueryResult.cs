@@ -22,9 +22,34 @@ namespace InformationRetrieval.Query
             _items.Add(new QueryResultItem(docId, 0.0));
         }
 
+        public int Size(){
+            return _items.Count;
+        }
+
         public List<QueryResultItem> GetItems()
         {
             return _items;
+        }
+
+        public QueryResult Intersection(QueryResult queryResult){
+            var result = new QueryResult();
+            int i = 0, j = 0;
+            while (i < Size() && j < queryResult.Size()){
+                var item1 = _items[i];
+                var item2 = queryResult._items[j];
+                if (item1.GetDocId() == item2.GetDocId()){
+                    result.Add(item1.GetDocId());
+                    i++;
+                    j++;
+                } else {
+                    if (item1.GetDocId() < item2.GetDocId()){
+                        i++;
+                    } else {
+                        j++;
+                    }
+                }
+            }
+            return result;
         }
 
         public void GetBest(int K)
