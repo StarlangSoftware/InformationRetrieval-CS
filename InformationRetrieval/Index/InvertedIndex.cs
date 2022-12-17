@@ -100,6 +100,21 @@ namespace InformationRetrieval.Index
             index[termId] = postingList;
         }
 
+        public void AutoCompleteWord(List<string> wordList, TermDictionary dictionary){
+            var counts = new List<int>();
+            foreach (var word in wordList){
+                counts.Add(index[dictionary.GetWordIndex(word)].Size());
+            }
+            for (var i = 0; i < wordList.Count - 1; i++){
+                for (var j = i + 1; j < wordList.Count; j++){
+                    if (counts[i] < counts[j]){
+                        (counts[i], counts[j]) = (counts[j], counts[i]);
+                        (wordList[i], wordList[j]) = (wordList[j], wordList[i]);
+                    }
+                }
+            }
+        }
+
         public QueryResult Search(Query.Query query, TermDictionary dictionary)
         {
             int i, termIndex;

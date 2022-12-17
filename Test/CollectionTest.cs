@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using InformationRetrieval.Document;
 using InformationRetrieval.Query;
 using NUnit.Framework;
@@ -184,6 +185,26 @@ namespace Test
             query = new Query("Terlik");
             result = memoryCollection.SearchCollection(query, searchParameter);
             Assert.AreEqual(5, result.GetItems().Count);
+        }
+
+        [Test]
+        public void TestAutoCompleteWord() {
+            var parameter = new Parameter();
+            parameter.SetNGramIndex(true);
+            parameter.SetLoadIndexesFromFile(true);
+            var memoryCollection = new MemoryCollection("../../../testCollection2", parameter);
+            var autoCompleteList = memoryCollection.AutoCompleteWord("kill");
+            Assert.AreEqual(1, autoCompleteList.Count);
+            autoCompleteList = memoryCollection.AutoCompleteWord("Ca");
+            Assert.AreEqual(2, autoCompleteList.Count);
+            memoryCollection = new MemoryCollection("../../../testCollection3", parameter);
+            parameter.SetDocumentType(DocumentType.CATEGORICAL);
+            autoCompleteList = memoryCollection.AutoCompleteWord("Yeni");
+            Assert.AreEqual(6, autoCompleteList.Count);
+            autoCompleteList = memoryCollection.AutoCompleteWord("Ka");
+            Assert.AreEqual(68, autoCompleteList.Count);
+            autoCompleteList = memoryCollection.AutoCompleteWord("Bebe");
+            Assert.AreEqual(12, autoCompleteList.Count);
         }
 
     }

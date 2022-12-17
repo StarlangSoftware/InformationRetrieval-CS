@@ -211,6 +211,21 @@ namespace InformationRetrieval.Document
             }
             return filteredResult;
         }
+        
+        public List<string> AutoCompleteWord(string prefix){
+            var result = new List<string>();
+            var i = Dictionary.GetWordStartingWith(prefix);
+            while (i < Dictionary.Size()){
+                if (Dictionary.GetWord(i).GetName().StartsWith(prefix)){
+                    result.Add(Dictionary.GetWord(i).GetName());
+                } else {
+                    break;
+                }
+                i++;
+            }
+            InvertedIndex.AutoCompleteWord(result, Dictionary);
+            return result;
+        }
 
         public QueryResult SearchCollection(Query.Query query, SearchParameter searchParameter)
         {
