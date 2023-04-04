@@ -73,8 +73,14 @@ namespace InformationRetrieval.Document
             var line = streamReader.ReadLine();
             while (line != null){
                 var items = line.Split("\t");
-                var docId = int.Parse(items[0]);
-                Documents[docId].SetCategory(CategoryTree, items[1]);
+                if (items.Length > 0)
+                {
+                    var docId = int.Parse(items[0]);
+                    if (items.Length > 1)
+                    {
+                        Documents[docId].SetCategory(CategoryTree, items[1]);
+                    }
+                }
                 line = streamReader.ReadLine();
             }
             streamReader.Close();
