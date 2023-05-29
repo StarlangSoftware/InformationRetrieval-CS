@@ -55,13 +55,21 @@ namespace InformationRetrieval.Query
         public void GetBest(int K)
         {
             var comparator = new QueryResultItemComparator();
-            var minHeap = new MinHeap<QueryResultItem>(2 * K, comparator);
-            foreach (QueryResultItem queryResultItem in _items){
-                minHeap.Insert(queryResultItem);
+            var minHeap = new MinHeap<QueryResultItem>(K, comparator);
+            for (int i = 0; i < K && i < _items.Count; i++){
+                minHeap.Insert(_items[i]);
+            }
+            for (int i = K + 1; i < _items.Count; i++){
+                QueryResultItem top = minHeap.Delete();
+                if (comparator.Compare(top, _items[i]) > 0){
+                    minHeap.Insert(top);
+                } else {
+                    minHeap.Insert(_items[i]);
+                }
             }
             _items.Clear();
             for (var i = 0; i < K && !minHeap.IsEmpty(); i++){
-                _items.Add(minHeap.Delete());
+                _items.Insert(0, minHeap.Delete());
             }
         }
     }

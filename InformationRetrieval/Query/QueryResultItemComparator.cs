@@ -8,13 +8,13 @@ namespace InformationRetrieval.Query
         {
             if (resultA.GetScore() > resultB.GetScore())
             {
-                return -1;
+                return 1;
             }
             else
             {
                 if (resultA.GetScore() < resultB.GetScore())
                 {
-                    return 1;
+                    return -1;
                 }
                 else
                 {

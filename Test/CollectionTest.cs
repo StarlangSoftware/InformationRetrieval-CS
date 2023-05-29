@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using InformationRetrieval.Document;
 using InformationRetrieval.Query;
 using NUnit.Framework;
