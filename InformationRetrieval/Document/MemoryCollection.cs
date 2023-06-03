@@ -159,11 +159,12 @@ namespace InformationRetrieval.Document
             return terms;
         }
         
-        private QueryResult AttributeSearch(Query.Query query){
+        private QueryResult AttributeSearch(Query.Query query, SearchParameter parameter){
             var termAttributes = new Query.Query();
             var phraseAttributes = new Query.Query();
             QueryResult termResult = new QueryResult(), phraseResult = new QueryResult();
-            query.FilterAttributes(AttributeList, termAttributes, phraseAttributes);
+            QueryResult attributeResult, filteredResult;
+            var filteredQuery = query.FilterAttributes(AttributeList, termAttributes, phraseAttributes);
             if (termAttributes.Size() > 0){
                 termResult = InvertedIndex.Search(termAttributes, Dictionary);
             }
@@ -171,12 +172,32 @@ namespace InformationRetrieval.Document
                 phraseResult = PhraseIndex.Search(phraseAttributes, PhraseDictionary);
             }
             if (termAttributes.Size() == 0){
-                return phraseResult;
+                attributeResult = phraseResult;
             }
-            if (phraseAttributes.Size() == 0){
-                return termResult;
+            else
+            {
+                if (phraseAttributes.Size() == 0){
+                    attributeResult = termResult;
+                }
+                else
+                {
+                    attributeResult = termResult.IntersectionFastSearch(phraseResult);
+                }
             }
-            return termResult.Intersection(phraseResult);
+            if (filteredQuery.Size() == 0){
+                return attributeResult;
+            } else {
+                filteredResult = SearchWithInvertedIndex(filteredQuery, parameter);
+                if (parameter.GetRetrievalType() != RetrievalType.RANKED){
+                    return filteredResult.IntersectionFastSearch(attributeResult);
+                } else {
+                    if (attributeResult.Size() < 10){
+                        return filteredResult.IntersectionLinearSearch(attributeResult);
+                    } else {
+                        return filteredResult.IntersectionBinarySearch(attributeResult);
+                    }
+                }
+            }
         }
 
         private QueryResult SearchWithInvertedIndex(Query.Query query, SearchParameter parameter)
@@ -190,8 +211,6 @@ namespace InformationRetrieval.Document
                 case RetrievalType.RANKED:
                     return PositionalIndex.RankedSearch(query, Dictionary, Documents, parameter.GetTermWeighting(),
                         parameter.GetDocumentWeighting(), parameter.GetDocumentsRetrieved());
-                case RetrievalType.ATTRIBUTE:
-                    return AttributeSearch(query);
             }
 
             return new QueryResult();
@@ -229,8 +248,13 @@ namespace InformationRetrieval.Document
 
         public QueryResult SearchCollection(Query.Query query, SearchParameter searchParameter)
         {
+            QueryResult currentResult;
             if (searchParameter.GetFocusType().Equals(FocusType.CATEGORY)){
-                var currentResult = SearchWithInvertedIndex(query, searchParameter);
+                if (searchParameter.GetSearchAttributes()){
+                    currentResult = AttributeSearch(query, searchParameter);
+                } else {
+                    currentResult = SearchWithInvertedIndex(query, searchParameter);
+                }
                 var categories = CategoryTree.GetCategories(query, Dictionary, searchParameter.GetCategoryDeterminationType());
                 return FilterAccordingToCategories(currentResult, categories);
             }
@@ -241,7 +265,11 @@ namespace InformationRetrieval.Document
                     case IndexType.INCIDENCE_MATRIX:
                         return IncidenceMatrix.Search(query, Dictionary);
                     case IndexType.INVERTED_INDEX:
-                        return SearchWithInvertedIndex(query, searchParameter);
+                        if (searchParameter.GetSearchAttributes()){
+                            return AttributeSearch(query, searchParameter);
+                        } else {
+                            return SearchWithInvertedIndex(query, searchParameter);
+                        }
                 }
    
             }

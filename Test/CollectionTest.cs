@@ -156,7 +156,9 @@ namespace Test
             parameter.SetLoadIndexesFromFile(true);
             var memoryCollection = new MemoryCollection("../../../testCollection3", parameter);
             var searchParameter = new SearchParameter();
-            searchParameter.SetRetrievalType(RetrievalType.ATTRIBUTE);
+            searchParameter.SetSearchAttributes(true);
+            searchParameter.SetDocumentsRetrieved(400);
+            searchParameter.SetRetrievalType(RetrievalType.RANKED);
             var query = new Query("Çift Yönlü");
             var result = memoryCollection.SearchCollection(query, searchParameter);
             Assert.AreEqual(10, result.GetItems().Count);

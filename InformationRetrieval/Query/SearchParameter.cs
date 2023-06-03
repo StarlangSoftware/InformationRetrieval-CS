@@ -11,6 +11,7 @@ namespace InformationRetrieval.Query
         private DocumentWeighting _documentWeighting = DocumentWeighting.NO_IDF;
         private TermWeighting _termWeighting = TermWeighting.NATURAL;
         private int _documentsRetrieved = 1;
+        private bool _searchAttributes = false;
 
         public SearchParameter(){
         }
@@ -38,6 +39,10 @@ namespace InformationRetrieval.Query
         public void SetCategoryDeterminationType(CategoryDeterminationType categoryDeterminationType) {
             this._categoryDeterminationType = categoryDeterminationType;
         }
+        
+        public void SetSearchAttributes(bool searchAttributes) {
+            _searchAttributes = searchAttributes;
+        }
 
         public RetrievalType GetRetrievalType() {
             return _retrievalType;
@@ -61,6 +66,10 @@ namespace InformationRetrieval.Query
 
         public CategoryDeterminationType GetCategoryDeterminationType() {
             return _categoryDeterminationType;
+        }
+        
+        public bool GetSearchAttributes() {
+            return _searchAttributes;
         }
 
     }

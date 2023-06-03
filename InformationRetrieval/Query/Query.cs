@@ -32,14 +32,15 @@ namespace InformationRetrieval.Query
             return _terms.Count;
         }
 
-        public void FilterAttributes(HashSet<string> attributeList, Query termAttributes, Query phraseAttributes)
+        public Query FilterAttributes(HashSet<string> attributeList, Query termAttributes, Query phraseAttributes)
         {
             var i = 0;
+            var filteredQuery = new Query();
             while (i < _terms.Count)
             {
                 if (i < _terms.Count - 1)
                 {
-                    string pair = _terms[i].GetName() + " " + _terms[i + 1].GetName();
+                    var pair = _terms[i].GetName() + " " + _terms[i + 1].GetName();
                     if (attributeList.Contains(pair))
                     {
                         phraseAttributes._terms.Add(new Word(pair));
@@ -52,9 +53,15 @@ namespace InformationRetrieval.Query
                 {
                     termAttributes._terms.Add(_terms[i]);
                 }
+                else
+                {
+                    filteredQuery._terms.Add(_terms[i]);
+                }
 
                 i++;
             }
+
+            return filteredQuery;
         }
     }
 }

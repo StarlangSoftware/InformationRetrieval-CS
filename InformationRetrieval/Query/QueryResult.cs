@@ -31,7 +31,7 @@ namespace InformationRetrieval.Query
             return _items;
         }
 
-        public QueryResult Intersection(QueryResult queryResult){
+        public QueryResult IntersectionFastSearch(QueryResult queryResult){
             var result = new QueryResult();
             int i = 0, j = 0;
             while (i < Size() && j < queryResult.Size()){
@@ -46,6 +46,46 @@ namespace InformationRetrieval.Query
                         i++;
                     } else {
                         j++;
+                    }
+                }
+            }
+            return result;
+        }
+
+        public QueryResult IntersectionBinarySearch(QueryResult queryResult){
+            var result = new QueryResult();
+            foreach (QueryResultItem searchedItem in _items){
+                var low = 0;
+                var high = queryResult.Size() - 1;
+                var middle = (low + high) / 2;
+                var found = false;
+                while (low <= high){
+                    if (searchedItem.GetDocId() > queryResult._items[middle].GetDocId()){
+                        low = middle + 1;
+                    } else {
+                        if (searchedItem.GetDocId() < queryResult._items[middle].GetDocId()){
+                            high = middle - 1;
+                        } else {
+                            found = true;
+                            break;
+                        }
+                    }
+                    middle = (low + high) / 2;
+                }
+                if (found){
+                    result.Add(searchedItem.GetDocId(), searchedItem.GetScore());
+                }
+            }
+            return result;
+        }
+
+        public QueryResult IntersectionLinearSearch(QueryResult queryResult)
+        {
+            QueryResult result = new QueryResult();
+            foreach (var searchedItem in _items){
+                foreach (var item in queryResult._items){
+                    if (searchedItem.GetDocId() == item.GetDocId()){
+                        result.Add(searchedItem.GetDocId(), searchedItem.GetScore());
                     }
                 }
             }
