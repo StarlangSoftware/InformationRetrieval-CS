@@ -187,15 +187,21 @@ namespace InformationRetrieval.Document
             if (filteredQuery.Size() == 0){
                 return attributeResult;
             } else {
-                filteredResult = SearchWithInvertedIndex(filteredQuery, parameter);
                 if (parameter.GetRetrievalType() != RetrievalType.RANKED){
+                    filteredResult = SearchWithInvertedIndex(filteredQuery, parameter);
                     return filteredResult.IntersectionFastSearch(attributeResult);
                 } else {
+                    filteredResult = PositionalIndex.RankedSearch(filteredQuery,
+                        Dictionary,
+                        Documents,
+                        parameter);
                     if (attributeResult.Size() < 10){
-                        return filteredResult.IntersectionLinearSearch(attributeResult);
+                        filteredResult = filteredResult.IntersectionLinearSearch(attributeResult);
                     } else {
-                        return filteredResult.IntersectionBinarySearch(attributeResult);
+                        filteredResult = filteredResult.IntersectionBinarySearch(attributeResult);
                     }
+                    filteredResult.GetBest(parameter.GetDocumentsRetrieved());
+                    return filteredResult;
                 }
             }
         }
@@ -209,8 +215,9 @@ namespace InformationRetrieval.Document
                 case RetrievalType.POSITIONAL: 
                     return PositionalIndex.PositionalSearch(query, Dictionary);
                 case RetrievalType.RANKED:
-                    return PositionalIndex.RankedSearch(query, Dictionary, Documents, parameter.GetTermWeighting(),
-                        parameter.GetDocumentWeighting(), parameter.GetDocumentsRetrieved());
+                    var result = PositionalIndex.RankedSearch(query, Dictionary, Documents, parameter);
+                    result.GetBest(parameter.GetDocumentsRetrieved());
+                    return result;
             }
 
             return new QueryResult();
