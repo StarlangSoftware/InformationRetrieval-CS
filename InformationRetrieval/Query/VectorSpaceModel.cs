@@ -7,6 +7,14 @@ namespace InformationRetrieval.Query
     {
         private double[] model;
 
+        /// <summary>
+        /// Constructor for the VectorSpaceModel class. Calculates the normalized tf-idf vector of a single document.
+        /// </summary>
+        /// <param name="termFrequencies">Term frequencies in the document</param>
+        /// <param name="documentFrequencies">Document frequencies of terms.</param>
+        /// <param name="documentSize">Number of documents in the collection</param>
+        /// <param name="termWeighting">Term weighting scheme applied in term frequency calculation.</param>
+        /// <param name="documentWeighting">Document weighting scheme applied in document frequency calculation.</param>
         public VectorSpaceModel(int[] termFrequencies, int[] documentFrequencies, int documentSize,
             TermWeighting termWeighting, DocumentWeighting documentWeighting)
         {
@@ -25,11 +33,21 @@ namespace InformationRetrieval.Query
             }
         }
 
+        /// <summary>
+        /// Returns the tf-idf value for a column at position index
+        /// </summary>
+        /// <param name="index">Position of the column</param>
+        /// <returns>tf-idf value for a column at position index</returns>
         public double Get(int index)
         {
             return model[index];
         }
 
+        /// <summary>
+        /// Calculates the cosine similarity between this document vector and the given second document vector.
+        /// </summary>
+        /// <param name="secondModel">Document vector of the second document.</param>
+        /// <returns>Cosine similarity between this document vector and the given second document vector.</returns>
         public double CosineSimilarity(VectorSpaceModel secondModel)
         {
             var sum = 0.0;
@@ -47,7 +65,16 @@ namespace InformationRetrieval.Query
 
             return sum;
         }
-
+        
+        /// <summary>
+        /// Calculates tf-idf value of a single word (column) of the document vector.
+        /// </summary>
+        /// <param name="termFrequency">Term frequency of this word in the document</param>
+        /// <param name="documentFrequency">Document frequency of this word.</param>
+        /// <param name="documentSize">Number of documents in the collection</param>
+        /// <param name="termWeighting">Term weighting scheme applied in term frequency calculation.</param>
+        /// <param name="documentWeighting">Document weighting scheme applied in document frequency calculation.</param>
+        /// <returns>tf-idf value of a single word (column) of the document vector.</returns>
         public static double Weighting(double termFrequency, double documentFrequency, int documentSize,
             TermWeighting termWeighting, DocumentWeighting documentWeighting)
         {

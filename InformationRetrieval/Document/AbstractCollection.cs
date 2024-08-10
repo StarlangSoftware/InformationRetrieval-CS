@@ -26,6 +26,13 @@ namespace InformationRetrieval.Document
         protected CategoryTree CategoryTree;
         protected HashSet<string> AttributeList;
 
+        /// <summary>
+        /// Constructor for the AbstractCollection class. All collections, disk, memory, large, medium are extended from this
+        /// basic class. Loads the attribute list from attribute file if required. Loads the names of the documents from
+        /// the document collection. If the collection is a categorical collection, also loads the category tree.
+        /// </summary>
+        /// <param name="directory">Directory where the document collection resides.</param>
+        /// <param name="parameter">Search parameter</param>
         public AbstractCollection(string directory, Parameter parameter)
         {
             Name = directory;
@@ -66,6 +73,11 @@ namespace InformationRetrieval.Document
             }
         }
         
+        /**
+         * Loads the category tree for the categorical collections from category index file. Each line of the category index
+         * file stores the index of the category and the category name with its hierarchy. Hierarchy string is obtained by
+         * concatenating the names of all nodes in the path from root node to a leaf node separated with '%'.
+         */
         private void LoadCategories()
         {
             CategoryTree = new CategoryTree(Name);
@@ -86,6 +98,11 @@ namespace InformationRetrieval.Document
             streamReader.Close();
         }
 
+        /**
+         * Loads the attribute list from attribute index file. Attributes are single or bi-word phrases representing the
+         * important features of products in the collection. Each line of the attribute file contains either single or a two
+         * word expression.
+         */
         private void LoadAttributeList()
         {
             AttributeList = new HashSet<string>();
@@ -98,17 +115,28 @@ namespace InformationRetrieval.Document
             }
             streamReader.Close();
         }
-
+        
+        /// <summary>
+        /// Returns size of the document collection.
+        /// </summary>
+        /// <returns>Size of the document collection.</returns>
         public int Size()
         {
             return Documents.Count;
         }
 
+        /// <summary>
+        /// Returns size of the term dictionary.
+        /// </summary>
+        /// <returns>Size of the term dictionary.</returns>
         public int VocabularySize()
         {
             return Dictionary.Size();
         }
 
+        /**
+         * Constructs bi-gram and tri-gram indexes in memory.
+         */
         protected void ConstructNGramIndex()
         {
             var terms = Dictionary.ConstructTermsFromDictionary(2);

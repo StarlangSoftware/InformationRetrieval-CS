@@ -9,6 +9,12 @@ namespace InformationRetrieval.Index
         private int _dictionarySize;
         private int _documentSize;
 
+        /// <summary>
+        /// Empty constructor for the incidence matrix representation. Initializes the incidence matrix according to the
+        /// given dictionary and document size.
+        /// </summary>
+        /// <param name="dictionarySize">Number of words in the dictionary (number of distinct words in the collection)</param>
+        /// <param name="documentSize">Number of documents in the collection</param>
         public IncidenceMatrix(int dictionarySize, int documentSize)
         {
             this._dictionarySize = dictionarySize;
@@ -20,6 +26,12 @@ namespace InformationRetrieval.Index
             }
         }
 
+        /// <summary>
+        /// Constructs an incidence matrix from a list of sorted tokens in the given terms array.
+        /// </summary>
+        /// <param name="terms">List of tokens in the memory collection.</param>
+        /// <param name="dictionary">Term dictionary</param>
+        /// <param name="documentSize">Number of documents in the collection</param>
         public IncidenceMatrix(List<TermOccurrence> terms, TermDictionary dictionary, int documentSize) : this(
             dictionary.Size(), documentSize)
         {
@@ -39,11 +51,22 @@ namespace InformationRetrieval.Index
             }
         }
 
+        /// <summary>
+        /// Sets the given cell in the incidence matrix to true.
+        /// </summary>
+        /// <param name="row">Row no of the cell</param>
+        /// <param name="col">Column no of the cell</param>
         public void Set(int row, int col)
         {
             _incidenceMatrix[row][col] = true;
         }
 
+        /// <summary>
+        /// Searches a given query in the document collection using incidence matrix boolean search.
+        /// </summary>
+        /// <param name="query">Query string</param>
+        /// <param name="dictionary">Term dictionary</param>
+        /// <returns>The result of the query obtained by doing incidence matrix boolean search in the collection.</returns>
         public QueryResult Search(Query.Query query, TermDictionary dictionary)
         {
             int i, j, termIndex;

@@ -11,17 +11,32 @@ namespace InformationRetrieval.Index
     {
         private SortedDictionary<int, PositionalPostingList> positionalIndex;
 
+        /**
+         * Constructs an empty inverted index.
+         */
         public PositionalIndex()
         {
             positionalIndex = new SortedDictionary<int, PositionalPostingList>();
         }
 
+        /// <summary>
+        /// Reads the positional inverted index from an input file.
+        /// </summary>
+        /// <param name="fileName">Input file name for the positional inverted index.</param>
         public PositionalIndex(string fileName)
         {
             positionalIndex = new SortedDictionary<int, PositionalPostingList>();
             ReadPositionalPostingList(fileName);
         }
 
+        /// <summary>
+        /// Constructs a positional inverted index from a list of sorted tokens. The terms array should be sorted before
+        /// calling this method. Multiple occurrences of the same term from the same document are enlisted separately in the
+        /// index.
+        /// </summary>
+        /// <param name="dictionary">Term dictionary</param>
+        /// <param name="terms">Sorted list of tokens in the memory collection.</param>
+        /// <param name="comparator">Comparator method to compare two terms.</param>
         public PositionalIndex(TermDictionary dictionary, List<TermOccurrence> terms, IComparer<Word> comparator)
         {
             int i, termId, prevDocId;
@@ -66,6 +81,12 @@ namespace InformationRetrieval.Index
             }
         }
 
+        /// <summary>
+        /// Reads the positional postings list of the positional index from an input file. The postings are stored in n
+        /// lines. The first line contains the term id and the number of documents that term occurs. Other n - 1 lines
+        /// contain the postings list for that term for a separate document.
+        /// </summary>
+        /// <param name="fileName">Positional index file.</param>
         private void ReadPositionalPostingList(string fileName)
         {
             var streamReader = new StreamReader(fileName + "-positionalPostings.txt");
@@ -81,6 +102,13 @@ namespace InformationRetrieval.Index
             streamReader.Close();
         }
 
+        /// <summary>
+        /// Saves the positional index into the index file. The postings are stored in n lines. The first line contains the
+        /// term id and the number of documents that term occurs. Other n - 1 lines contain the postings list for that term
+        /// for a separate document.
+        /// </summary>
+        /// <param name="fileName">Index file name. Real index file name is created by attaching -positionalPostings.txt to this
+        /// file name</param>
         public void Save(string fileName)
         {
             var printWriter = new StreamWriter(fileName + "-positionalPostings.txt");
@@ -90,6 +118,13 @@ namespace InformationRetrieval.Index
             printWriter.Close();
         }
 
+        /// <summary>
+        /// Adds a possible new term with a position and document id to the positional index. First the term is searched in
+        /// the hash map, then the position and the document id is put into the correct postings list.
+        /// </summary>
+        /// <param name="termId">Id of the term</param>
+        /// <param name="docId">Document id in which the term exists</param>
+        /// <param name="position">Position of the term in the document with id docId</param>
         public void AddPosition(int termId, int docId, int position)
         {
             PositionalPostingList positionalPostingList;
@@ -106,6 +141,12 @@ namespace InformationRetrieval.Index
             positionalIndex[termId] = positionalPostingList;
         }
 
+        /// <summary>
+        /// Searches a given query in the document collection using positional index boolean search.
+        /// </summary>
+        /// <param name="query">Query string</param>
+        /// <param name="dictionary">Term dictionary</param>
+        /// <returns>The result of the query obtained by doing positional index boolean search in the collection.</returns>
         public QueryResult PositionalSearch(Query.Query query, TermDictionary dictionary)
         {
             int i, term;
@@ -143,6 +184,11 @@ namespace InformationRetrieval.Index
                 return new QueryResult();
         }
 
+        /// <summary>
+        /// Returns the term frequencies  in a given document.
+        /// </summary>
+        /// <param name="docId">Id of the document</param>
+        /// <returns>Term frequencies of the given document.</returns>
         public int[] GetTermFrequencies(int docId)
         {
             int[] tf;
@@ -167,6 +213,10 @@ namespace InformationRetrieval.Index
             return tf;
         }
 
+        /// <summary>
+        /// Returns the document frequencies of the terms in the collection.
+        /// </summary>
+        /// <returns>The document frequencies of the terms in the collection.</returns>
         public int[] GetDocumentFrequencies()
         {
             int[] df;
@@ -179,6 +229,10 @@ namespace InformationRetrieval.Index
             return df;
         }
         
+        /// <summary>
+        /// Calculates and sets the number of terms in each document in the document collection.
+        /// </summary>
+        /// <param name="documents">Document collection.</param>
         public void SetDocumentSizes(List<Document.Document> documents){
             var sizes = new int[documents.Count];
             foreach (var key in positionalIndex.Keys){
@@ -194,6 +248,10 @@ namespace InformationRetrieval.Index
             }
         }
 
+        /// <summary>
+        /// Calculates and updates the frequency counts of the terms in each category node.
+        /// </summary>
+        /// <param name="documents">Document collection.</param>
         public void SetCategoryCounts(List<Document.Document> documents){
             foreach (var termId in positionalIndex.Keys){
                 var positionalPostingList = positionalIndex[termId];
@@ -204,6 +262,15 @@ namespace InformationRetrieval.Index
                 }
             }
         }
+        
+        /// <summary>
+        /// Searches a given query in the document collection using inverted index ranked search.
+        /// </summary>
+        /// <param name="query">Query string</param>
+        /// <param name="dictionary">Term dictionary</param>
+        /// <param name="documents">Document collection</param>
+        /// <param name="parameter">Search parameter</param>
+        /// <returns>The result of the query obtained by doing inverted index ranked search in the collection.</returns>
         public QueryResult RankedSearch(Query.Query query, 
             TermDictionary dictionary, 
             List<Document.Document> documents,

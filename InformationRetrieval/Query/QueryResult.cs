@@ -7,30 +7,56 @@ namespace InformationRetrieval.Query
     {
         private List<QueryResultItem> _items;
 
+        /**
+         * Empty constructor for the QueryResult object.
+         */
         public QueryResult()
         {
             _items = new List<QueryResultItem>();
         }
 
+        /// <summary>
+        /// Adds a new result item to the list of query result.
+        /// </summary>
+        /// <param name="docId">Document id of the result</param>
+        /// <param name="score">Score of the result</param>
         public void Add(int docId, double score)
         {
             _items.Add(new QueryResultItem(docId, score));
         }
 
+        /// <summary>
+        /// Adds a new result item with score 0 to the list of query result.
+        /// </summary>
+        /// <param name="docId">Document id of the result</param>
         public void Add(int docId)
         {
             _items.Add(new QueryResultItem(docId, 0.0));
         }
 
+        /// <summary>
+        /// Returns number of results for query
+        /// </summary>
+        /// <returns>Number of results for query</returns>
         public int Size(){
             return _items.Count;
         }
 
+        /// <summary>
+        /// Returns result list for query
+        /// </summary>
+        /// <returns>Result list for query</returns>
         public List<QueryResultItem> GetItems()
         {
             return _items;
         }
 
+        /// <summary>
+        /// Given two query results, this method identifies the intersection of those two results by doing parallel iteration
+        /// in O(N).
+        /// </summary>
+        /// <param name="queryResult">Second query result to be intersected.</param>
+        /// <returns>Intersection of this query result with the second query result</returns>
         public QueryResult IntersectionFastSearch(QueryResult queryResult){
             var result = new QueryResult();
             int i = 0, j = 0;
@@ -52,6 +78,12 @@ namespace InformationRetrieval.Query
             return result;
         }
 
+        /// <summary>
+        /// Given two query results, this method identifies the intersection of those two results by doing binary search on
+        /// the second list in O(N log N).
+        /// </summary>
+        /// <param name="queryResult">Second query result to be intersected.</param>
+        /// <returns>Intersection of this query result with the second query result</returns>
         public QueryResult IntersectionBinarySearch(QueryResult queryResult){
             var result = new QueryResult();
             foreach (QueryResultItem searchedItem in _items){
@@ -79,6 +111,12 @@ namespace InformationRetrieval.Query
             return result;
         }
 
+        /// <summary>
+        /// Given two query results, this method identifies the intersection of those two results by doing exhaustive search
+        /// on the second list in O(N^2).
+        /// </summary>
+        /// <param name="queryResult">Second query result to be intersected.</param>
+        /// <returns>Intersection of this query result with the second query result</returns>
         public QueryResult IntersectionLinearSearch(QueryResult queryResult)
         {
             QueryResult result = new QueryResult();
@@ -92,6 +130,10 @@ namespace InformationRetrieval.Query
             return result;
         }
 
+        /// <summary>
+        /// The method returns K best results from the query result using min heap in O(K log N + N log K) time.
+        /// </summary>
+        /// <param name="K">Size of the best subset.</param>
         public void GetBest(int K)
         {
             var comparator = new QueryResultItemComparator();

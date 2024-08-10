@@ -16,11 +16,18 @@ namespace InformationRetrieval.Query
             "v", "m", "l", "w", "s"
         };
 
+        /**
+         * Constructor of the Query class. Initializes the terms array.
+         */
         public Query()
         {
             _terms = new List<Word>();
         }
 
+        /// <summary>
+        /// Another constructor of the Query class. Splits the query into multiple words and put them into the terms array.
+        /// </summary>
+        /// <param name="query">Query string</param>
         public Query(string query)
         {
             _terms = new List<Word>();
@@ -31,16 +38,32 @@ namespace InformationRetrieval.Query
             }
         }
 
+        /// <summary>
+        /// Accessor for the terms array. Returns the term at position index.
+        /// </summary>
+        /// <param name="index">Position of the term in the terms array.</param>
+        /// <returns>The term at position index.</returns>
         public Word GetTerm(int index)
         {
             return _terms[index];
         }
 
+        /// <summary>
+        /// Returns the size of the query, i.e. number of words in the query.
+        /// </summary>
+        /// <returns>Size of the query, i.e. number of words in the query.</returns>
         public int Size()
         {
             return _terms.Count;
         }
 
+        /// <summary>
+        /// Filters the original query by removing phrase attributes, shortcuts and single word attributes.
+        /// </summary>
+        /// <param name="attributeList">Hash set containing all attributes (phrase and single word)</param>
+        /// <param name="termAttributes">New query that will accumulate single word attributes from the original query.</param>
+        /// <param name="phraseAttributes">New query that will accumulate phrase attributes from the original query.</param>
+        /// <returns>Filtered query after removing single word and phrase attributes from the original query.</returns>
         public Query FilterAttributes(HashSet<string> attributeList, Query termAttributes, Query phraseAttributes)
         {
             var i = 0;

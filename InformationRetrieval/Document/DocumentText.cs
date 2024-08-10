@@ -7,18 +7,38 @@ namespace InformationRetrieval.Document
 {
     public class DocumentText : Corpus.Corpus
     {
+        /**
+         * Empty constructor for the DocumentText class.
+         */
         public DocumentText()
         {
             
         }
+        
+        /// <summary>
+        /// Another constructor for the DocumentText class. Calls super with the given file name.
+        /// </summary>
+        /// <param name="fileName">File name of the corpus</param>
         public DocumentText(string fileName) : base(fileName)
         {
         }
 
+        /// <summary>
+        /// Another constructor for the DocumentText class. Calls super with the given file name and sentence splitter.
+        /// </summary>
+        /// <param name="fileName">File name of the corpus</param>
+        /// <param name="sentenceSplitter">Sentence splitter class that separates sentences.</param>
         public DocumentText(string fileName, SentenceSplitter sentenceSplitter) : base(fileName, sentenceSplitter)
         {
         }
 
+        /// <summary>
+        /// Given the corpus, creates a hash set of distinct terms. If term type is TOKEN, the terms are single word, if
+        /// the term type is PHRASE, the terms are bi-words.
+        /// </summary>
+        /// <param name="termType">If term type is TOKEN, the terms are single word, if the term type is PHRASE, the terms are
+        ///                 bi-words.</param>
+        /// <returns>Hash set of terms occurring in the document.</returns>
         public HashSet<string> ConstructDistinctWordList(TermType termType)
         {
             var words = new HashSet<string>();
@@ -46,6 +66,14 @@ namespace InformationRetrieval.Document
             return words;
         }
 
+        /// <summary>
+        /// Given the corpus, creates an array of terms occurring in the document in that order. If term type is TOKEN, the
+        /// terms are single word, if the term type is PHRASE, the terms are bi-words.
+        /// </summary>
+        /// <param name="docId">Id of the document</param>
+        /// <param name="termType">If term type is TOKEN, the terms are single word, if the term type is PHRASE, the terms are
+        ///                 bi-words.</param>
+        /// <returns>Array list of terms occurring in the document.</returns>
         public List<TermOccurrence> ConstructTermList(int docId, TermType termType)
         {
             var terms = new List<TermOccurrence>();
